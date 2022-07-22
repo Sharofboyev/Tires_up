@@ -1,0 +1,33 @@
+{
+  "name": "tiers_up",
+  "version": "1.0.0",
+  "description": "Small project of API",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sharofboyev/tiers_up.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sharofboyev/tiers_up/issues"
+  },
+  "homepage": "https://github.com/Sharofboyev/tiers_up#readme",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "mssql": "^8.1.2"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.13",
+    "@types/mssql": "^8.0.3",
+    "@types/node": "^18.0.6",
+    "typescript": "^4.7.4"
+  }
+}
