@@ -9,6 +9,11 @@ export interface UpdateMark {
     marked: boolean
 }
 
+export interface FilterQuery{
+    limit?: number,
+    pvi?: number
+}
+
 export function isString(obj: any): obj is string {
     return typeof obj === "string";
 }
@@ -41,5 +46,30 @@ export function validateMarkUpdate(body: any): Result<UpdateMark> {
     return {
         ok: true,
         value: body
+    }
+}
+
+export function validateRequestQuery(query: any): Result<FilterQuery> {
+    if (query.pvi){
+        query.pvi = Number(query.pvi)
+        if (query.pvi === NaN) {
+            return error(`PVI must be a valid number`);
+        } else if (!min(0, query.pvi)) {
+            return error(`PVI must not be negative but was ${query.pvi}`);
+        }
+    }
+
+    if (query.limit){
+        query.limit = Number(query.limit)
+        if (query.limit === NaN) {
+            return error(`Limit property should be a valid number`);
+        } else if (!min(1, query.limit)) {
+            return error(`Limit must not be less than 1 but was ${query.limit}`);
+        }
+    }
+
+    return {
+        ok: true,
+        value: query
     }
 }

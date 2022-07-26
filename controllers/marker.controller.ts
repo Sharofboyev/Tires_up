@@ -1,18 +1,34 @@
 import { NextFunction, Request, Response } from "express";
+import { LocalError } from "../models/structures";
 import {Marker} from "../services/marker"
-import {validateMarkUpdate} from "../utils/validator"
+import {validateMarkUpdate, validateRequestQuery} from "../utils/validator"
 
 const markerService = new Marker();
 
 export async function getRows(req:Request, res: Response, next: NextFunction){
-    let lastData = await markerService.getLast()
-    res.send(lastData.recordset);
+    let result = validateRequestQuery(req.query);
+    if (result.ok){
+        try {
+            let lastData = await markerService.getLast(result.value.limit, result.value.pvi)
+            res.send(lastData.recordset);
+        } catch (err){
+            res.status(500).send("Internal server error occured")
+        }
+    }
+    else {
+        return res.status(400).send(result.message);
+    }
 }
 
 export async function markRow(req:Request, res: Response, next: NextFunction){
     let result = validateMarkUpdate(req.body)
     if (result.ok){
-        await markerService.updateMarkValue(result.value.pvi, result.value.marked)
+        try {
+            await markerService.updateMarkValue(result.value.pvi, result.value.marked)
+            res.send("Marked successfully")
+        }catch(err){
+            return res.status(500).send("Internal server error occured")
+        }
     }
     else return res.status(400).send(result.message);
 }
