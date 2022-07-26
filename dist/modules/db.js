@@ -19,20 +19,19 @@ const sqlConfig = {
     password: config_1.default.db_password,
     database: config_1.default.db_name,
     server: config_1.default.db_host,
-    pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
-    },
+    port: config_1.default.db_port,
+    options: {
+        encrypt: false
+    }
 };
-() => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        // make sure that any items are correctly URL encoded in the connection string
-        yield mssql_1.default.connect(sqlConfig);
-        const result = yield mssql_1.default.query `select 45`;
+try {
+    // make sure that any items are correctly URL encoded in the connection string
+    mssql_1.default.connect(sqlConfig).then(() => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield mssql_1.default.query `select COUNT(*) AS count FROM dbo.profiles`;
         console.dir(result);
-    }
-    catch (err) {
-        // ... error checks
-    }
-});
+    }));
+}
+catch (err) {
+    console.log(err.message);
+    // ... error checks
+}

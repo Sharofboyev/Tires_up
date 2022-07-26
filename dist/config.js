@@ -24,7 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
-dotenv.config({ path: __dirname + "/.env" });
+dotenv.config({ path: __dirname + "/../.env" });
 class Config {
     constructor(port, db_host, db_port, db_name, db_user, db_password) {
         this.port = port;

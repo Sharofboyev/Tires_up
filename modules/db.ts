@@ -5,20 +5,18 @@ const sqlConfig: sql.config = {
     password: config.db_password,
     database: config.db_name,
     server: config.db_host,
-    pool: {
-      max: 10,
-      min: 0,
-      idleTimeoutMillis: 30000
-    },
+    port: config.db_port,
+    options: {
+        encrypt: false
+    }
 }
 
-async () => {
-    try {
-     // make sure that any items are correctly URL encoded in the connection string
-     await sql.connect(sqlConfig)
-     const result = await sql.query`select 45`
-     console.dir(result)
-    } catch (err) {
-     // ... error checks
-    }
+try {
+ // make sure that any items are correctly URL encoded in the connection string
+ sql.connect(sqlConfig)
+ const result = sql.query`select COUNT(*) AS count FROM dbo.profiles`
+ console.dir(result)
+} catch (err: any) {
+  console.log(err.message)
+ // ... error checks
 }

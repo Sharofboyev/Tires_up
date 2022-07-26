@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-dotenv.config({path: __dirname + "/.env"})
+import * as dotenv from "dotenv";
+dotenv.config({path: __dirname + "/../.env"})
 
 class Config {
     public constructor(public readonly port: number, public readonly db_host: string, 

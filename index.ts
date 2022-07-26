@@ -1,8 +1,7 @@
 import express, {Express} from "express";
 const app: Express = express();
 import config from "./config";
-
-console.log(config)
+import * as db from "./modules/db"
 
 app.use(express.json());
 
