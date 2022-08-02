@@ -25,12 +25,10 @@ export async function getTable(limit?: number, pvi?: number){
         try {
             let rows = await pool.request().query(
                 `select ${limit ? "TOP " + String(limit): ""}
-                    tiresecond.*, COALESCE(marked_table.count, 0) AS marked
-                from 
-                    tiresecond 
-                left join
-                    (select COUNT(PVI)as count, PVI from dbo.PROFILES WHERE PROFILE_NAME = 'marked' AND PROFILE_VALUE = 'True' GROUP BY pvi) as marked_table ON tiresecond.PVI = marked_table.pvi
-                ${pvi ? "WHERE tiresecond.PVI = " + String(pvi): ""}`
+                    *
+                from
+                    tiresecond
+                ${pvi ? "WHERE tiresecond.PVI = " + String(pvi): ""} ORDER BY CSN ASC`
             )
             return rows
         }
@@ -50,15 +48,15 @@ export async function updateMarkValue(pvi: number, marked: boolean){
     try {
         const pool = await sql.connect(sqlConfig);
         try {
-            let markedProfiles = await pool.request().input('PVI', sql.Int, pvi).query(`SELECT * FROM dbo.profiles WHERE profile_name = 'marked' AND PVI = @PVI`)
-            if (markedProfiles.rowsAffected[0] > 0){
-                await pool.request().input('PVI', sql.Int, pvi).input('profile_value', sql.VarChar, marked ? "True": "False")
-                    .query(`UPDATE dbo.profiles SET profile_value = @profile_value WHERE profile_name = 'marked' AND PVI = @PVI`)
-            }
-            else {
-                await pool.request().input('PVI', sql.Int, pvi).input('profile_value', sql.VarChar, marked ? "True": "False")
-                    .query(`INSERT INTO dbo.profiles (PVI, profile_name, profile_value) VALUES (@PVI, 'marked', @profile_value)`)
-            }
+            await pool.request().input('PVI', sql.Int, pvi).input('profile_value', sql.VarChar, marked ? "True": "False")
+                .query(`UPDATE dbo.profiles SET profile_value = @profile_value WHERE profile_name = 'T2TIRE' AND PVI = @PVI`)
+            // let markedProfiles = await pool.request().input('PVI', sql.Int, pvi).query(`SELECT * FROM dbo.profiles WHERE profile_name = 'marked' AND PVI = @PVI`)
+            // if (markedProfiles.rowsAffected[0] > 0){
+            // }
+            // else {
+            //     await pool.request().input('PVI', sql.Int, pvi).input('profile_value', sql.VarChar, marked ? "True": "False")
+            //         .query(`INSERT INTO dbo.profiles (PVI, profile_name, profile_value) VALUES (@PVI, 'marked', @profile_value)`)
+            // }
         }
         catch (err: any){
             throw new DatabaseError(err.message)
