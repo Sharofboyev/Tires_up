@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { LocalError } from "../models/structures";
 import {Marker} from "../services/marker"
-import {validateMarkUpdate, validateRequestQuery} from "../utils/validator"
+import {validateGetMarkTimesQuery, validateMarkUpdate, validateRequestQuery} from "../utils/validator"
 
 const markerService = new Marker();
 
@@ -31,4 +30,18 @@ export async function markRow(req:Request, res: Response, next: NextFunction){
         }
     }
     else return res.status(400).send(result.message);
+}
+
+export async function getMarkTimes(req: Request, res: Response, next: NextFunction){
+    let result = validateGetMarkTimesQuery(req.query);
+    if (result.ok){
+        try {
+            await markerService.getMarkTimes(result.value.pvi)
+            res.send("Marked successfully")
+        }
+        catch (err){
+            return res.status(500).send("Internal server error occured")
+        }
+    }
+    else return res.status(400).send(result.message)
 }

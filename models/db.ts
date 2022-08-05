@@ -49,7 +49,8 @@ export async function updateMarkValue(pvi: number, marked: boolean){
         const pool = await sql.connect(sqlConfig);
         try {
             await pool.request().input('PVI', sql.Int, pvi).input('profile_value', sql.VarChar, marked ? "True": "False")
-                .query(`UPDATE dbo.profiles SET profile_value = @profile_value WHERE profile_name = 'T2TIRE' AND PVI = @PVI`)
+                .query(`UPDATE dbo.profiles SET profile_value = @profile_value WHERE profile_name = 'T2TIRE' AND PVI = @PVI;
+                INSERT INTO dbo.Telegram (PVI, JOY) VALUES (@PVI, 't2tire')`)
             // let markedProfiles = await pool.request().input('PVI', sql.Int, pvi).query(`SELECT * FROM dbo.profiles WHERE profile_name = 'marked' AND PVI = @PVI`)
             // if (markedProfiles.rowsAffected[0] > 0){
             // }
@@ -57,6 +58,25 @@ export async function updateMarkValue(pvi: number, marked: boolean){
             //     await pool.request().input('PVI', sql.Int, pvi).input('profile_value', sql.VarChar, marked ? "True": "False")
             //         .query(`INSERT INTO dbo.profiles (PVI, profile_name, profile_value) VALUES (@PVI, 'marked', @profile_value)`)
             // }
+        }
+        catch (err: any){
+            throw new DatabaseError(err.message)
+        }
+        finally{
+            pool.close()
+        }
+    }
+    catch (err: any){
+        throw new DatabaseError(err.message)
+    }
+}
+
+export async function getMarkTimes(pvi: number) {
+    try {
+        const pool = await sql.connect(sqlConfig);
+        try {
+            await pool.request().input('PVI', sql.Int, pvi).query(
+                `SELECT Vaqt FROM dbo.Telegram WHERE Joy = 't2tire' ORDER BY ID ASC`)
         }
         catch (err: any){
             throw new DatabaseError(err.message)

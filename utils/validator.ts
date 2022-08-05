@@ -1,5 +1,3 @@
-import { Request } from "express";
-
 export type Result<T> = 
     | { ok: true, value: T }
     | { ok: false, message: string }
@@ -12,6 +10,10 @@ export interface UpdateMark {
 export interface FilterQuery{
     limit?: number,
     pvi?: number
+}
+
+export interface GetMarkTimes{
+    pvi: number
 }
 
 export function isString(obj: any): obj is string {
@@ -32,20 +34,20 @@ const error: <T>(message: string) => Result<T> = message => ({
     message: message
 })
 
-export function validateMarkUpdate(body: any): Result<UpdateMark> {
-    if (!isNumber(body.pvi)) {
-        return error(`PVI must be a number but was ${typeof body.pvi}`);
-    } else if (!min(0, body.pvi)) {
-        return error(`PVI must not be negative but was ${body.pvi}`);
+export function validateMarkUpdate(query: any): Result<UpdateMark> {
+    if (!isNumber(query.pvi)) {
+        return error(`PVI must be a number but was ${typeof query.pvi}`);
+    } else if (!min(0, query.pvi)) {
+        return error(`PVI must not be negative but was ${query.pvi}`);
     }
 
-    if (!isBoolean(body.marked)) {
-        return error (`Marked must be a boolean but was ${typeof body.marked}`);
+    if (!isBoolean(query.marked)) {
+        return error (`Marked must be a boolean but was ${typeof query.marked}`);
     }
 
     return {
         ok: true,
-        value: body
+        value: query
     }
 }
 
@@ -66,6 +68,19 @@ export function validateRequestQuery(query: any): Result<FilterQuery> {
         } else if (!min(1, query.limit)) {
             return error(`Limit must not be less than 1 but was ${query.limit}`);
         }
+    }
+
+    return {
+        ok: true,
+        value: query
+    }
+}
+
+export function validateGetMarkTimesQuery(query: any): Result<GetMarkTimes> {
+    if (!isNumber(query.pvi)) {
+        return error(`PVI must be a number but was ${typeof query.pvi}`);
+    } else if (!min(0, query.pvi)) {
+        return error(`PVI must not be negative but was ${query.pvi}`);
     }
 
     return {
