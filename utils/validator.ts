@@ -77,14 +77,15 @@ export function validateRequestQuery(query: any): Result<FilterQuery> {
 }
 
 export function validateGetMarkTimesQuery(query: any): Result<GetMarkTimes> {
-    if (!isNumber(query.pvi)) {
+    let pvi = Number(query.pvi);
+    if (pvi === NaN) {
         return error(`PVI must be a number but was ${typeof query.pvi}`);
-    } else if (!min(0, query.pvi)) {
-        return error(`PVI must not be negative but was ${query.pvi}`);
+    } else if (!min(0, pvi)) {
+        return error(`PVI must not be negative but was ${pvi}`);
     }
 
     return {
         ok: true,
-        value: query
+        value: {...query, pvi: pvi}
     }
 }
