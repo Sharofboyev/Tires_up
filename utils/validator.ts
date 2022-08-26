@@ -1,4 +1,4 @@
-export type Result<T> = 
+export type Result<T> =
     | { ok: true, value: T }
     | { ok: false, message: string }
 
@@ -7,12 +7,12 @@ export interface UpdateMark {
     marked: boolean
 }
 
-export interface FilterQuery{
+export interface FilterQuery {
     limit?: number,
     pvi?: number
 }
 
-export interface GetMarkTimes{
+export interface GetMarkTimes {
     pvi: number
 }
 
@@ -42,7 +42,7 @@ export function validateMarkUpdate(query: any): Result<UpdateMark> {
     }
 
     if (!isBoolean(query.marked)) {
-        return error (`Marked must be a boolean but was ${typeof query.marked}`);
+        return error(`Marked must be a boolean but was ${typeof query.marked}`);
     }
 
     return {
@@ -52,7 +52,7 @@ export function validateMarkUpdate(query: any): Result<UpdateMark> {
 }
 
 export function validateRequestQuery(query: any): Result<FilterQuery> {
-    if (query.pvi){
+    if (query.pvi) {
         query.pvi = Number(query.pvi)
         if (query.pvi === NaN) {
             return error(`PVI must be a valid number`);
@@ -61,7 +61,7 @@ export function validateRequestQuery(query: any): Result<FilterQuery> {
         }
     }
 
-    if (query.limit){
+    if (query.limit) {
         query.limit = Number(query.limit)
         if (query.limit === NaN) {
             return error(`Limit property should be a valid number`);
@@ -86,6 +86,6 @@ export function validateGetMarkTimesQuery(query: any): Result<GetMarkTimes> {
 
     return {
         ok: true,
-        value: {...query, pvi: pvi}
+        value: { ...query, pvi: pvi }
     }
 }
