@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Marker } from "../services/marker";
+import { Marker, View } from "../services/marker";
 import {
   validateGetMarkTimesQuery,
   validateMarkUpdate,
@@ -7,6 +7,7 @@ import {
 } from "../utils/validator";
 
 const markerService = new Marker();
+const viewService = new View();
 
 export async function getRows(req: Request, res: Response, next: NextFunction) {
   let result = validateRequestQuery(req.query);
@@ -55,4 +56,16 @@ export async function getMarkTimes(
       return res.status(500).send("Internal server error occured");
     }
   } else return res.status(400).send(result.message);
+}
+
+export async function getViews(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    let data = await viewService.getViews();
+  } catch (err) {
+    return res.status(500).send("Internal server error occured");
+  }
 }

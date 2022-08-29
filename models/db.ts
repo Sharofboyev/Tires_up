@@ -20,25 +20,18 @@ const sqlConfig: sql.config = {
 };
 
 export async function getTable(viewName: string, limit?: number, pvi?: number) {
-  console.log(limit, pvi);
   const pool = await sql.connect(sqlConfig);
   try {
     let rows = await pool
       .request()
       .input("VIEW", sql.Text, viewName)
       .query(
-        `EXEC(select ${limit ? `TOP ${limit} ` : ""} * from @VIEW ${
+        `SELECT ${limit ? `TOP ${limit} ` : ""} * from ${viewName} ${
           pvi ? `WHERE PVI = ${pvi} ` : ""
-        } ORDER BY CSN ASC)`
+        } ORDER BY CSN ASC`
       );
     return rows;
   } catch (err: any) {
-    console.log(
-      err,
-      `EXEC(select ${limit !== undefined ? "TOP @LIMIT " : ""} * from @VIEW ${
-        pvi ? "WHERE PVI = @PVI " : ""
-      } ORDER BY CSN ASC)`
-    );
     throw new DatabaseError(err.message);
   } finally {
     pool.close();
@@ -91,6 +84,23 @@ export async function hasThisView(name: string) {
       .input("name", sql.VarChar(32), name)
       .query(
         `SELECT COUNT(*) AS hasView FROM  WHERE name = @name ORDER BY ID ASC`
+      );
+    return rows.recordset;
+  } catch (err: any) {
+    throw new DatabaseError(err.message);
+  } finally {
+    pool.close();
+  }
+}
+
+export async function getViews(name?: string) {
+  const pool = await sql.connect(sqlConfig);
+  try {
+    let rows = await pool
+      .request()
+      .input("name", sql.VarChar(32), name)
+      .query(
+        `SELECT COUNT(*) AS hasView FROM views WHERE name = @name ORDER BY ID ASC`
       );
     return rows.recordset;
   } catch (err: any) {
