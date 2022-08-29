@@ -36,3 +36,4 @@ class Config {
     }
 }
 exports.default = new Config(Number(process.env.APP_PORT), String(process.env.DB_HOST), Number(process.env.DB_PORT), String(process.env.DB_NAME), String(process.env.DB_USER), String(process.env.DB_PASSWORD));
+//# sourceMappingURL=config.js.map
