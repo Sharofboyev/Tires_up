@@ -6,6 +6,7 @@ import {
   validateMarkedRow,
   validateFilter,
   validateView,
+  validateRemovedView,
 } from "../utils/validator";
 
 const markerService = new Marker();
@@ -95,11 +96,11 @@ export async function removeView(
   next: NextFunction
 ) {
   try {
-    let result = validateView(req.body);
+    let result = validateRemovedView(req.query);
     if (!result.ok) return res.status(400).send(result.message);
 
-    let data = await viewService.getViews();
-    res.send(data);
+    await viewService.removeView(result.value.name);
+    return res.send("Successfully removed");
   } catch (err) {
     return res.status(500).send("Internal server error occured");
   }

@@ -96,12 +96,15 @@ export async function hasThisView(name: string) {
 export async function getViews(name?: string) {
   const pool = await sql.connect(sqlConfig);
   try {
-    let rows = await pool
-      .request()
-      .input("name", sql.VarChar(32), name)
-      .query(
-        `SELECT COUNT(*) AS hasView FROM views WHERE name = @name ORDER BY ID ASC`
-      );
+    let rows;
+    if (name) {
+      rows = await pool
+        .request()
+        .input("name", sql.VarChar(32), name)
+        .query("SELECT * FROM views WHERE name = @name ORDER BY ID ASC");
+    } else
+      rows = await pool.request().query("SELECT * FROM views ORDER BY ID ASC");
+
     return rows.recordset;
   } catch (err: any) {
     throw new DatabaseError(err.message);
@@ -113,11 +116,25 @@ export async function getViews(name?: string) {
 export async function updateView(name: string, query: string) {
   const pool = await sql.connect(sqlConfig);
   try {
-    let rows = await pool
+    await pool
       .request()
       .input("name", sql.VarChar(32), name)
       .input("query", sql.VarChar(), query)
       .query(`UPDATE views SET query = @query WHERE name = @name`);
+  } catch (err: any) {
+    throw new DatabaseError(err.message);
+  } finally {
+    pool.close();
+  }
+}
+
+export async function removeView(name: string) {
+  const pool = await sql.connect(sqlConfig);
+  try {
+    await pool
+      .request()
+      .input("name", sql.VarChar(32), name)
+      .query(`DELETE FROM views WHERE name = @name`);
   } catch (err: any) {
     throw new DatabaseError(err.message);
   } finally {

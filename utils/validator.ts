@@ -26,11 +26,11 @@ const validationError: <T>(message: string) => Result<T> = (message) => ({
   message: message,
 });
 
-export function validateMarkedRow(query: any): Result<MarkedRow> {
+export function validateMarkedRow(body: any): Result<MarkedRow> {
   const { error, value } = Joi.object({
     pvi: Joi.number().required(),
     marked: Joi.boolean().required(),
-  }).validate(query);
+  }).validate(body);
   if (error) {
     return validationError(error.details[0].message);
   } else return { ok: true, value };
@@ -53,11 +53,11 @@ export function validateRow(body: any): Result<Row> {
   return { ok: true, value };
 }
 
-export function validateView(query: any): Result<View> {
+export function validateView(body: any): Result<View> {
   const { error, value } = Joi.object({
     name: Joi.string().required(),
     query: Joi.string().required(),
-  }).validate(query);
+  }).validate(body);
   if (error) {
     return validationError(error.details[0].message);
   }
@@ -70,17 +70,12 @@ export function validateView(query: any): Result<View> {
   return { ok: true, value };
 }
 
-export function validateViewDeleting(query: any): Result<{ name: string }> {
+export function validateRemovedView(query: any): Result<{ name: string }> {
   const { error, value } = Joi.object({
     name: Joi.string().required(),
   }).validate(query);
   if (error) {
     return validationError(error.details[0].message);
-  }
-
-  let regExp = new RegExp(/update|delete|insert|drop|alter|add/gim);
-  if (regExp.test(value.name)) {
-    return validationError("Query has restricted words");
   }
 
   return { ok: true, value };
