@@ -1,9 +1,4 @@
-import {
-  getMarkTimes,
-  getTable,
-  updateMarkValue,
-  getViews,
-} from "../models/db";
+import { getMarkTimes, getTable, updateMarkValue } from "../models/db";
 
 export class Marker {
   async getLast(viewName: string, limit?: number, pvi?: number) {
@@ -15,11 +10,5 @@ export class Marker {
   }
   async getMarkTimes(pvi: number) {
     return await getMarkTimes(pvi);
-  }
-}
-
-export class View {
-  async getViews() {
-    return await getViews();
   }
 }

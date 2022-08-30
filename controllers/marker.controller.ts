@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { Marker, View } from "../services/marker";
+import { Marker } from "../services/marker";
+import { View } from "../services/view";
 import {
   validateGetMarkTimesQuery,
   validateMarkUpdate,
   validateRequestQuery,
+  validateView,
 } from "../utils/validator";
 
 const markerService = new Marker();
@@ -65,6 +67,48 @@ export async function getViews(
 ) {
   try {
     let data = await viewService.getViews();
+    res.send(data);
+  } catch (err) {
+    return res.status(500).send("Internal server error occured");
+  }
+}
+
+export async function updateView(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    let result = validateView(req.body);
+    if (!result.ok) return res.status(400).send(result.message);
+
+    await viewService.updateView(result.value);
+    res.send("Success");
+  } catch (err) {
+    return res.status(500).send("Internal server error occured");
+  }
+}
+
+export async function removeView(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    let result = validateView(req.body);
+    if (!result.ok) return res.status(400).send(result.message);
+
+    let data = await viewService.getViews();
+    res.send(data);
+  } catch (err) {
+    return res.status(500).send("Internal server error occured");
+  }
+}
+
+export async function addView(req: Request, res: Response, next: NextFunction) {
+  try {
+    let data = await viewService.getViews();
+    res.send(data);
   } catch (err) {
     return res.status(500).send("Internal server error occured");
   }

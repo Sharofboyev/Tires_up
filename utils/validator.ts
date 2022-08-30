@@ -16,8 +16,9 @@ interface GetMarkTimes {
   pvi: number;
 }
 
-interface View {
+export interface View {
   name: string;
+  query: string;
 }
 
 const validationError: <T>(message: string) => Result<T> = (message) => ({
@@ -41,10 +42,7 @@ export function validateRequestQuery(query: any): Result<FilterQuery> {
     limit: Joi.number().positive(),
   }).validate(query);
   if (error) return validationError(error.details[0].message);
-  return {
-    ok: true,
-    value: value,
-  };
+  return { ok: true, value };
 }
 
 export function validateGetMarkTimesQuery(query: any): Result<GetMarkTimes> {
@@ -52,26 +50,22 @@ export function validateGetMarkTimesQuery(query: any): Result<GetMarkTimes> {
     pvi: Joi.number().positive(),
   }).validate(query);
   if (error) return validationError(error.details[0].message);
-  return {
-    ok: true,
-    value,
-  };
+  return { ok: true, value };
 }
 
 export function validateView(query: any): Result<View> {
   const { error, value } = Joi.object({
-    name: Joi.string().optional(),
+    name: Joi.string().required(),
+    query: Joi.string().required(),
   }).validate(query);
   if (error) {
     return validationError(error.details[0].message);
   }
-  return {
-    ok: true,
-    value,
-  };
-}
 
-/*let regExp = new RegExp(/update|delete|insert|drop|alter|add/gim);
+  let regExp = new RegExp(/update|delete|insert|drop|alter|add/gim);
   if (regExp.test(value.name)) {
     return validationError("Query has restricted words");
-  } */
+  }
+
+  return { ok: true, value };
+}

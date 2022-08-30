@@ -109,3 +109,18 @@ export async function getViews(name?: string) {
     pool.close();
   }
 }
+
+export async function updateView(name: string, query: string) {
+  const pool = await sql.connect(sqlConfig);
+  try {
+    let rows = await pool
+      .request()
+      .input("name", sql.VarChar(32), name)
+      .input("query", sql.VarChar(), query)
+      .query(`UPDATE views SET query = @query WHERE name = @name`);
+  } catch (err: any) {
+    throw new DatabaseError(err.message);
+  } finally {
+    pool.close();
+  }
+}
