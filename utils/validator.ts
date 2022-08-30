@@ -2,17 +2,17 @@ import Joi from "joi";
 
 type Result<T> = { ok: true; value: T } | { ok: false; message: string };
 
-interface UpdateMark {
+interface MarkedRow {
   pvi: number;
   marked: boolean;
 }
 
-interface FilterQuery {
+interface FilterBy {
   limit?: number;
   pvi?: number;
 }
 
-interface GetMarkTimes {
+interface Row {
   pvi: number;
 }
 
@@ -26,7 +26,7 @@ const validationError: <T>(message: string) => Result<T> = (message) => ({
   message: message,
 });
 
-export function validateMarkUpdate(query: any): Result<UpdateMark> {
+export function validateMarkedRow(query: any): Result<MarkedRow> {
   const { error, value } = Joi.object({
     pvi: Joi.number().required(),
     marked: Joi.boolean().required(),
@@ -36,7 +36,7 @@ export function validateMarkUpdate(query: any): Result<UpdateMark> {
   } else return { ok: true, value };
 }
 
-export function validateRequestQuery(query: any): Result<FilterQuery> {
+export function validateFilter(query: any): Result<FilterBy> {
   const { error, value } = Joi.object({
     pvi: Joi.number().positive(),
     limit: Joi.number().positive(),
@@ -45,10 +45,10 @@ export function validateRequestQuery(query: any): Result<FilterQuery> {
   return { ok: true, value };
 }
 
-export function validateGetMarkTimesQuery(query: any): Result<GetMarkTimes> {
+export function validateRow(body: any): Result<Row> {
   const { error, value } = Joi.object({
     pvi: Joi.number().positive(),
-  }).validate(query);
+  }).validate(body);
   if (error) return validationError(error.details[0].message);
   return { ok: true, value };
 }
@@ -57,6 +57,22 @@ export function validateView(query: any): Result<View> {
   const { error, value } = Joi.object({
     name: Joi.string().required(),
     query: Joi.string().required(),
+  }).validate(query);
+  if (error) {
+    return validationError(error.details[0].message);
+  }
+
+  let regExp = new RegExp(/update|delete|insert|drop|alter|add/gim);
+  if (regExp.test(value.name)) {
+    return validationError("Query has restricted words");
+  }
+
+  return { ok: true, value };
+}
+
+export function validateViewDeleting(query: any): Result<{ name: string }> {
+  const { error, value } = Joi.object({
+    name: Joi.string().required(),
   }).validate(query);
   if (error) {
     return validationError(error.details[0].message);

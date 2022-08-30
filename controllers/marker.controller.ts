@@ -2,9 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { Marker } from "../services/marker";
 import { View } from "../services/view";
 import {
-  validateGetMarkTimesQuery,
-  validateMarkUpdate,
-  validateRequestQuery,
+  validateRow,
+  validateMarkedRow,
+  validateFilter,
   validateView,
 } from "../utils/validator";
 
@@ -12,7 +12,7 @@ const markerService = new Marker();
 const viewService = new View();
 
 export async function getRows(req: Request, res: Response, next: NextFunction) {
-  let result = validateRequestQuery(req.query);
+  let result = validateFilter(req.query);
   if (result.ok) {
     try {
       let lastData = await markerService.getLast(
@@ -30,7 +30,7 @@ export async function getRows(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function markRow(req: Request, res: Response, next: NextFunction) {
-  let result = validateMarkUpdate(req.body);
+  let result = validateMarkedRow(req.body);
   if (result.ok) {
     try {
       let markedDate = await markerService.updateMarkValue(
@@ -49,7 +49,7 @@ export async function getMarkTimes(
   res: Response,
   next: NextFunction
 ) {
-  let result = validateGetMarkTimesQuery(req.query);
+  let result = validateRow(req.query);
   if (result.ok) {
     try {
       let data = await markerService.getMarkTimes(result.value.pvi);

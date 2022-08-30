@@ -1,9 +1,9 @@
-import { validateMarkUpdate, validateView } from "../utils/validator";
+import { validateMarkedRow, validateView } from "../utils/validator";
 
 import { describe, expect, test } from "@jest/globals";
 
 test("Markup validator", () => {
-  expect(validateMarkUpdate({ pvi: 123, marked: true })).toEqual({
+  expect(validateMarkedRow({ pvi: 123, marked: true })).toEqual({
     ok: true,
     value: {
       pvi: 123,
@@ -11,7 +11,7 @@ test("Markup validator", () => {
     },
   });
 
-  expect(validateMarkUpdate({ pvi: "123", marked: true }).ok).toBeTruthy();
+  expect(validateMarkedRow({ pvi: "123", marked: true }).ok).toBeTruthy();
 });
 
 test("View validator", () => {
