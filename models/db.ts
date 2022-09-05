@@ -20,14 +20,13 @@ const sqlConfig: sql.config = {
   },
 };
 
-export async function getTable(viewName: string, limit?: number, pvi?: number) {
+export async function getTable(query: string, limit?: number, pvi?: number) {
   const pool = await sql.connect(sqlConfig);
   try {
     let rows = await pool
       .request()
-      .input("VIEW", sql.Text, viewName)
       .query(
-        `SELECT ${limit ? `TOP ${limit} ` : ""} * from ${viewName} ${
+        `SELECT ${limit ? `TOP ${limit} ` : ""} * from (${query}) AS my_view ${
           pvi ? `WHERE PVI = ${pvi} ` : ""
         } ORDER BY CSN ASC`
       );
@@ -79,9 +78,7 @@ export async function hasThisView(name: string) {
     let rows = await pool
       .request()
       .input("name", sql.VarChar(32), name)
-      .query(
-        `SELECT COUNT(*) AS total FROM views WHERE name = @name ORDER BY ID ASC`
-      );
+      .query(`SELECT COUNT(*) AS total FROM views WHERE name = @name`);
     if (rows.recordset.length > 0) {
       return rows.recordset[0].total > 0;
     }

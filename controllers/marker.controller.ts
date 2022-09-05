@@ -17,10 +17,11 @@ export async function getRows(req: Request, res: Response, next: NextFunction) {
   let result = validateFilter(req.query);
   if (result.ok) {
     try {
-      if (!(await viewService.hasView(req.params.viewName)))
+      const view = await viewService.getViews(req.params.viewName);
+      if (view === null)
         return res.status(404).send("View with given name not found");
       let lastData = await markerService.getLast(
-        req.params.viewName,
+        view.query,
         result.value.limit,
         result.value.pvi
       );
@@ -101,9 +102,10 @@ export async function removeView(
   next: NextFunction
 ) {
   try {
-    let result = validateRemovedView(req.query);
+    const result = validateRemovedView(req.query);
     if (!result.ok) return res.status(400).send(result.message);
-
+    if (!(await viewService.hasView(result.value.name)))
+      return res.status(404).send("View with this name not exists");
     await viewService.removeView(result.value.name);
     return res.send("Successfully removed");
   } catch (err) {
@@ -115,6 +117,8 @@ export async function addView(req: Request, res: Response, next: NextFunction) {
   try {
     const result = validateView(req.body);
     if (!result.ok) return res.status(400).send(result.message);
+    if (await viewService.hasView(result.value.name))
+      return res.status(400).send("View with this name already exists");
     await viewService.addView(result.value.name, result.value.query);
     return res.send("Successfully added");
   } catch (err) {
