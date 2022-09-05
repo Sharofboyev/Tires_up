@@ -1,8 +1,17 @@
-import { getViews, updateView, removeView } from "../models/db";
+import {
+  getViews,
+  updateView,
+  removeView,
+  addView,
+  hasThisView,
+} from "../models/db";
 import { View as ViewInterface } from "../utils/validator";
 
 export class View {
-  async getViews() {
+  async getViews(name?: string) {
+    if (name) {
+      return await getViews(name);
+    }
     return await getViews();
   }
 
@@ -12,5 +21,13 @@ export class View {
 
   async removeView(name: string) {
     await removeView(name);
+  }
+
+  async addView(name: string, query: string) {
+    await addView(name, query);
+  }
+
+  async hasView(name: string) {
+    return await hasThisView(name);
   }
 }

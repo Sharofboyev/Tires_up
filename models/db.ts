@@ -1,3 +1,4 @@
+import e from "express";
 import sql from "mssql";
 import config from "../config";
 import { LocalError } from "./structures";
@@ -39,23 +40,19 @@ export async function getTable(viewName: string, limit?: number, pvi?: number) {
 }
 
 export async function updateMarkValue(pvi: number, marked: boolean) {
+  const pool = await sql.connect(sqlConfig);
   try {
-    const pool = await sql.connect(sqlConfig);
-    try {
-      let res = await pool
-        .request()
-        .input("PVI", sql.Int, pvi)
-        .input("profile_value", sql.VarChar, marked ? "True" : "False")
-        .query(`UPDATE dbo.profiles_GA SET profile_value = @profile_value WHERE profile_name = 'T2TIRE' AND PVI = @PVI;
-                INSERT INTO dbo.Telegram (PVI, JOY) OUTPUT Inserted.Vaqt, 't2tire' AS Joy VALUES (@PVI, 't2tire')`);
-      return res.recordset[0];
-    } catch (err: any) {
-      throw new DatabaseError(err.message);
-    } finally {
-      pool.close();
-    }
+    let res = await pool
+      .request()
+      .input("PVI", sql.Int, pvi)
+      .input("profile_value", sql.VarChar, marked ? "True" : "False")
+      .query(`UPDATE dbo.profiles_GA SET profile_value = @profile_value WHERE profile_name = 'T2TIRE' AND PVI = @PVI;
+              INSERT INTO dbo.Telegram (PVI, JOY) OUTPUT Inserted.Vaqt, 't2tire' AS Joy VALUES (@PVI, 't2tire')`);
+    return res.recordset[0];
   } catch (err: any) {
     throw new DatabaseError(err.message);
+  } finally {
+    pool.close();
   }
 }
 
@@ -83,9 +80,12 @@ export async function hasThisView(name: string) {
       .request()
       .input("name", sql.VarChar(32), name)
       .query(
-        `SELECT COUNT(*) AS hasView FROM  WHERE name = @name ORDER BY ID ASC`
+        `SELECT COUNT(*) AS total FROM views WHERE name = @name ORDER BY ID ASC`
       );
-    return rows.recordset;
+    if (rows.recordset.length > 0) {
+      return rows.recordset[0].total > 0;
+    }
+    return false;
   } catch (err: any) {
     throw new DatabaseError(err.message);
   } finally {
@@ -102,9 +102,10 @@ export async function getViews(name?: string) {
         .request()
         .input("name", sql.VarChar(32), name)
         .query("SELECT * FROM views WHERE name = @name ORDER BY ID ASC");
+      if (rows.recordset.length > 0) return rows.recordset[0];
+      else return null;
     } else
       rows = await pool.request().query("SELECT * FROM views ORDER BY ID ASC");
-
     return rows.recordset;
   } catch (err: any) {
     throw new DatabaseError(err.message);
@@ -135,6 +136,21 @@ export async function removeView(name: string) {
       .request()
       .input("name", sql.VarChar(32), name)
       .query(`DELETE FROM views WHERE name = @name`);
+  } catch (err: any) {
+    throw new DatabaseError(err.message);
+  } finally {
+    pool.close();
+  }
+}
+
+export async function addView(name: string, query: string) {
+  const pool = await sql.connect(sqlConfig);
+  try {
+    await pool
+      .request()
+      .input("name", sql.VarChar(), name)
+      .input("query", sql.VarChar(), query)
+      .query(`INSERT INTO views (query, name) VALUES (@query, @name)`);
   } catch (err: any) {
     throw new DatabaseError(err.message);
   } finally {

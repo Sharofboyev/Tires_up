@@ -36,7 +36,7 @@ export function validateMarkedRow(body: any): Result<MarkedRow> {
   } else return { ok: true, value };
 }
 
-export function validateFilter(query: any): Result<FilterBy> {
+export function validateFilter(query: unknown): Result<FilterBy> {
   const { error, value } = Joi.object({
     pvi: Joi.number().positive(),
     limit: Joi.number().positive(),
@@ -45,7 +45,7 @@ export function validateFilter(query: any): Result<FilterBy> {
   return { ok: true, value };
 }
 
-export function validateRow(body: any): Result<Row> {
+export function validateRow(body: unknown): Result<Row> {
   const { error, value } = Joi.object({
     pvi: Joi.number().positive(),
   }).validate(body);
@@ -53,24 +53,26 @@ export function validateRow(body: any): Result<Row> {
   return { ok: true, value };
 }
 
-export function validateView(body: any): Result<View> {
+export function validateView(body: unknown): Result<View> {
   const { error, value } = Joi.object({
     name: Joi.string().required(),
     query: Joi.string().required(),
-  }).validate(body);
+  })
+    .required()
+    .validate(body);
   if (error) {
     return validationError(error.details[0].message);
   }
 
-  let regExp = new RegExp(/update|delete|insert|drop|alter|add/gim);
-  if (regExp.test(value.name)) {
-    return validationError("Query has restricted words");
+  let regExp = new RegExp(/update|delete|insert|drop|alter|add|\//gim);
+  if (regExp.test(value.query)) {
+    return validationError("Query has restricted key words");
   }
 
   return { ok: true, value };
 }
 
-export function validateRemovedView(query: any): Result<{ name: string }> {
+export function validateRemovedView(query: unknown): Result<{ name: string }> {
   const { error, value } = Joi.object({
     name: Joi.string().required(),
   }).validate(query);
@@ -78,5 +80,15 @@ export function validateRemovedView(query: any): Result<{ name: string }> {
     return validationError(error.details[0].message);
   }
 
+  return { ok: true, value };
+}
+
+export function validateViewQuery(query: unknown): Result<{ name?: string }> {
+  const { error, value } = Joi.object({
+    name: Joi.string().optional(),
+  }).validate(query);
+  if (error) {
+    return validationError(error.details[0].message);
+  }
   return { ok: true, value };
 }
