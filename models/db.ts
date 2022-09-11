@@ -114,11 +114,15 @@ export async function getViews(name?: string) {
 export async function updateView(name: string, query: string) {
   const pool = await sql.connect(sqlConfig);
   try {
-    await pool
+    const { recordset } = await pool
       .request()
       .input("name", sql.VarChar(32), name)
       .input("query", sql.VarChar(), query)
-      .query(`UPDATE views SET query = @query WHERE name = @name`);
+      .query(
+        `UPDATE views SET query = @query, created_time = GETDATE() WHERE name = @name; SELECT created_time FROM views WHERE name = @name`
+      );
+    if (recordset.length > 0) return recordset[0];
+    else return { created_time: new Date() };
   } catch (err: any) {
     throw new DatabaseError(err.message);
   } finally {
@@ -143,11 +147,15 @@ export async function removeView(name: string) {
 export async function addView(name: string, query: string) {
   const pool = await sql.connect(sqlConfig);
   try {
-    await pool
+    const { recordset } = await pool
       .request()
       .input("name", sql.VarChar(), name)
       .input("query", sql.VarChar(), query)
-      .query(`INSERT INTO views (query, name) VALUES (@query, @name)`);
+      .query(
+        `INSERT INTO views (query, name) VALUES (@query, @name); SELECT * FROM views WHERE name = @name`
+      );
+    if (recordset.length > 0) return recordset[0];
+    else throw new Error("View hasn't been added successfully");
   } catch (err: any) {
     throw new DatabaseError(err.message);
   } finally {

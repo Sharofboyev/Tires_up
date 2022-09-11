@@ -89,8 +89,8 @@ export async function updateView(
     let result = validateView(req.body);
     if (!result.ok) return res.status(400).send(result.message);
 
-    await viewService.updateView(result.value);
-    res.send("Success");
+    let data = await viewService.updateView(result.value);
+    res.send(data);
   } catch (err) {
     return res.status(500).send("Internal server error occured");
   }
@@ -119,8 +119,8 @@ export async function addView(req: Request, res: Response, next: NextFunction) {
     if (!result.ok) return res.status(400).send(result.message);
     if (await viewService.hasView(result.value.name))
       return res.status(400).send("View with this name already exists");
-    await viewService.addView(result.value.name, result.value.query);
-    return res.send("Successfully added");
+    let data = await viewService.addView(result.value.name, result.value.query);
+    return res.send(data);
   } catch (err) {
     return res.status(500).send("Internal server error occured");
   }

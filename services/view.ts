@@ -8,23 +8,23 @@ import {
 import { View as ViewInterface } from "../utils/validator";
 
 export class View {
-  async getViews(name?: string) {
+  getViews(name?: string) {
     if (name) {
-      return await getViews(name);
+      return getViews(name);
     }
-    return await getViews();
+    return getViews();
   }
 
-  async updateView(view: ViewInterface) {
-    await updateView(view.name, view.query);
+  updateView(view: ViewInterface) {
+    return updateView(view.name, view.query);
   }
 
-  async removeView(name: string) {
-    await removeView(name);
+  removeView(name: string) {
+    removeView(name);
   }
 
-  async addView(name: string, query: string) {
-    await addView(name, query);
+  addView(name: string, query: string) {
+    return addView(name, query);
   }
 
   async hasView(name: string) {
