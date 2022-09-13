@@ -38,15 +38,20 @@ export async function getTable(query: string, limit?: number, pvi?: number) {
   }
 }
 
-export async function updateMarkValue(pvi: number, marked: boolean) {
+export async function updateMarkValue(
+  pvi: number,
+  marked: boolean,
+  viewName: string
+) {
   const pool = await sql.connect(sqlConfig);
   try {
     let res = await pool
       .request()
+      .input("view_name", sql.VarChar, viewName)
       .input("PVI", sql.Int, pvi)
       .input("profile_value", sql.VarChar, marked ? "True" : "False")
-      .query(`UPDATE dbo.profiles_GA SET profile_value = @profile_value WHERE profile_name = 'T2TIRE' AND PVI = @PVI;
-              INSERT INTO dbo.Telegram (PVI, JOY) OUTPUT Inserted.Vaqt, 't2tire' AS Joy VALUES (@PVI, 't2tire')`);
+      .query(`UPDATE dbo.profiles_GA SET profile_value = @profile_value WHERE profile_name = @view_name AND PVI = @PVI;
+              INSERT INTO dbo.Telegram (PVI, JOY) OUTPUT Inserted.Vaqt, @view_name AS Joy VALUES (@PVI, @view_name)`);
     return res.recordset[0];
   } catch (err: any) {
     throw new DatabaseError(err.message);
@@ -55,14 +60,15 @@ export async function updateMarkValue(pvi: number, marked: boolean) {
   }
 }
 
-export async function getMarkTimes(pvi: number) {
+export async function getMarkTimes(pvi: number, viewName: string) {
   const pool = await sql.connect(sqlConfig);
   try {
     let rows = await pool
       .request()
       .input("PVI", sql.Int, pvi)
+      .input("view_name", sql.VarChar, viewName)
       .query(
-        `SELECT Vaqt, Joy FROM dbo.Telegram WHERE Joy IN ('tushdi', 't2tire') AND PVI=@PVI ORDER BY ID ASC`
+        `SELECT Vaqt, Joy FROM dbo.Telegram WHERE Joy IN ('tushdi', @view_name) AND PVI=@PVI ORDER BY ID ASC`
       );
     return rows.recordset;
   } catch (err: any) {

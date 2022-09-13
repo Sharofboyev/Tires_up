@@ -40,7 +40,8 @@ export async function markRow(req: Request, res: Response, next: NextFunction) {
     try {
       let markedDate = await markerService.updateMarkValue(
         result.value.pvi,
-        result.value.marked
+        result.value.marked,
+        req.params.viewName
       );
       res.send(markedDate);
     } catch (err) {
@@ -57,7 +58,10 @@ export async function getMarkTimes(
   let result = validateRow(req.query);
   if (result.ok) {
     try {
-      let data = await markerService.getMarkTimes(result.value.pvi);
+      let data = await markerService.getMarkTimes(
+        result.value.pvi,
+        req.params.viewName
+      );
       res.send(data);
     } catch (err) {
       return res.status(500).send("Internal server error occured");

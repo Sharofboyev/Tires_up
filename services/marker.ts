@@ -5,10 +5,10 @@ export class Marker {
     if (pvi) limit = 1;
     return await getTable(viewName, limit, pvi);
   }
-  async updateMarkValue(pvi: number, marked: boolean) {
-    return await updateMarkValue(pvi, marked);
+  async updateMarkValue(pvi: number, marked: boolean, viewName: string) {
+    return await updateMarkValue(pvi, marked, viewName);
   }
-  async getMarkTimes(pvi: number) {
-    return await getMarkTimes(pvi);
+  async getMarkTimes(pvi: number, viewName: string) {
+    return await getMarkTimes(pvi, viewName);
   }
 }
