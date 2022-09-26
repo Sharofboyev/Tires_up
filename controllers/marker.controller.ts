@@ -80,6 +80,7 @@ export async function getViews(
     let data = await viewService.getViews(result.value.name);
     res.send(data);
   } catch (err) {
+    console.log((err as Error).message);
     return res.status(500).send("Internal server error occured");
   }
 }

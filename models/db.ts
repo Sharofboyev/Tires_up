@@ -1,4 +1,3 @@
-import e from "express";
 import sql from "mssql";
 import config from "../config";
 import { LocalError } from "./structures";
@@ -26,7 +25,9 @@ export async function getTable(query: string, limit?: number, pvi?: number) {
     let rows = await pool
       .request()
       .query(
-        `SELECT ${limit ? `TOP ${limit} ` : ""} * from (${query}) AS my_view ${
+        `SELECT ${
+          limit ? `TOP ${limit} ` : "TOP 130 "
+        } * from (${query}) AS my_view ${
           pvi ? `WHERE PVI = ${pvi} ` : ""
         } ORDER BY CSN ASC`
       );
@@ -50,8 +51,9 @@ export async function updateMarkValue(
       .input("view_name", sql.VarChar, viewName)
       .input("PVI", sql.Int, pvi)
       .input("profile_value", sql.VarChar, marked ? "True" : "False")
-      .query(`UPDATE dbo.profiles_GA SET profile_value = @profile_value WHERE profile_name = @view_name AND PVI = @PVI;
-              INSERT INTO dbo.Telegram (PVI, JOY) OUTPUT Inserted.Vaqt, @view_name AS Joy VALUES (@PVI, @view_name)`);
+      .query(
+        `INSERT INTO dbo.Telegram (PVI, JOY) OUTPUT Inserted.Vaqt, @view_name AS Joy VALUES (@PVI, @view_name)`
+      );
     return res.recordset[0];
   } catch (err: any) {
     throw new DatabaseError(err.message);
